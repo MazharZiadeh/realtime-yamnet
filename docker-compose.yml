@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  yamnet-cpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: realtime-yamnet-cpu
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+    volumes:
+      - /run/user/1000/pulse:/run/user/1000/pulse
+    restart: unless-stopped
+
+  yamnet-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    container_name: realtime-yamnet-gpu
+    runtime: nvidia
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+      - TF_FORCE_GPU_ALLOW_GROWTH=true
+    volumes:
+      - /run/user/1000/pulse:/run/user/1000/pulse
+    restart: unless-stopped
+
