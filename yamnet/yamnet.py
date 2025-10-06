@@ -37,39 +37,39 @@ def _batch_norm(name):
 
 def _conv(name, kernel, stride, filters):
   def _conv_layer(layer_input):
-    output = layers.Conv2D(name='{}/conv'.format(name),
+    output = layers.Conv2D(name='{}_conv'.format(name),
                            filters=filters,
                            kernel_size=kernel,
                            strides=stride,
                            padding=params.CONV_PADDING,
                            use_bias=False,
                            activation=None)(layer_input)
-    output = _batch_norm(name='{}/conv/bn'.format(name))(output)
-    output = layers.ReLU(name='{}/relu'.format(name))(output)
+    output = _batch_norm(name='{}_conv_bn'.format(name))(output)
+    output = layers.ReLU(name='{}_relu'.format(name))(output)
     return output
   return _conv_layer
 
 
 def _separable_conv(name, kernel, stride, filters):
   def _separable_conv_layer(layer_input):
-    output = layers.DepthwiseConv2D(name='{}/depthwise_conv'.format(name),
+    output = layers.DepthwiseConv2D(name='{}_depthwise_conv'.format(name),
                                     kernel_size=kernel,
                                     strides=stride,
                                     depth_multiplier=1,
                                     padding=params.CONV_PADDING,
                                     use_bias=False,
                                     activation=None)(layer_input)
-    output = _batch_norm(name='{}/depthwise_conv/bn'.format(name))(output)
-    output = layers.ReLU(name='{}/depthwise_conv/relu'.format(name))(output)
-    output = layers.Conv2D(name='{}/pointwise_conv'.format(name),
+    output = _batch_norm(name='{}_depthwise_conv_bn'.format(name))(output)
+    output = layers.ReLU(name='{}_depthwise_conv_relu'.format(name))(output)
+    output = layers.Conv2D(name='{}_pointwise_conv'.format(name),
                            filters=filters,
                            kernel_size=(1, 1),
                            strides=1,
                            padding=params.CONV_PADDING,
                            use_bias=False,
                            activation=None)(output)
-    output = _batch_norm(name='{}/pointwise_conv/bn'.format(name))(output)
-    output = layers.ReLU(name='{}/pointwise_conv/relu'.format(name))(output)
+    output = _batch_norm(name='{}_pointwise_conv_bn'.format(name))(output)
+    output = layers.ReLU(name='{}_pointwise_conv_relu'.format(name))(output)
     return output
   return _separable_conv_layer
 
@@ -123,11 +123,14 @@ def yamnet_frames_model(feature_params):
   """
   waveform = layers.Input(batch_shape=(1, None))
   # Store the intermediate spectrogram features to use in visualization.
-  # Use Lambda layer to wrap TensorFlow operations for Keras compatibility
+  # Use Lambda layers to wrap TensorFlow operations for Keras 3.x compatibility
   squeezed_waveform = layers.Lambda(lambda x: tf.squeeze(x, axis=0))(waveform)
-  spectrogram = features_lib.waveform_to_log_mel_spectrogram(
-    squeezed_waveform, feature_params)
-  patches = features_lib.spectrogram_to_patches(spectrogram, feature_params)
+  spectrogram = layers.Lambda(
+    lambda x: features_lib.waveform_to_log_mel_spectrogram(x, feature_params)
+  )(squeezed_waveform)
+  patches = layers.Lambda(
+    lambda x: features_lib.spectrogram_to_patches(x, feature_params)
+  )(spectrogram)
   predictions = yamnet(patches)
   frames_model = Model(name='yamnet_frames', 
                        inputs=waveform, outputs=[predictions, spectrogram])
