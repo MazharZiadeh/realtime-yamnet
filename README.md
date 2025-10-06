@@ -12,6 +12,9 @@ A real-time sound classification system using Google's YAMNet model that can det
 - 📊 **Visual Feedback** - Real-time mel-spectrogram visualization
 - 🎤 **Automatic Mic Setup** - Built-in microphone configuration and troubleshooting
 - 🚀 **Easy Deployment** - One-command setup for local machines or clusters
+- ✨ **Enhanced Versions** - Temporal smoothing, VAD, confidence filtering, event tracking
+- 📝 **Event Logging** - Auto-log detected events with timestamps
+- 🎚️ **Multiple Modes** - Basic, Enhanced, and PRO versions for different use cases
 
 ## 🚀 Quick Start
 
@@ -25,15 +28,23 @@ bash setup.sh
 
 ### Running
 
-**CPU Mode:**
-```bash
-bash run.sh
-```
+**Choose your version:**
 
-**GPU Mode (5-10x faster):**
 ```bash
+# Basic - Simple real-time classification with GUI
+bash run.sh
+
+# Enhanced - Temporal smoothing + confidence filtering
+bash run_enhanced.sh
+
+# PRO - VAD + spectral analysis + event logging
+bash run_pro.sh
+
+# GPU Mode (5-10x faster, any version)
 bash run_with_gpu.sh
 ```
+
+See [ENHANCEMENTS.md](ENHANCEMENTS.md) for detailed feature comparison!
 
 ### Output Example
 
@@ -113,15 +124,20 @@ See [MICROPHONE_FIXED.md](MICROPHONE_FIXED.md) for detailed troubleshooting.
 
 ```
 realtime_YAMNET/
-├── realtime_YAMNET.py          # Main application (with GUI)
-├── realtime_YAMNET_text.py     # Text-only version
+├── realtime_YAMNET.py          # Basic: GUI with visualization
+├── realtime_YAMNET_text.py     # Basic: Text-only version
+├── realtime_YAMNET_enhanced.py # Enhanced: Temporal smoothing + filtering
+├── realtime_YAMNET_pro.py      # PRO: VAD + spectral analysis + logging
 ├── yamnet/                     # YAMNet model files
 │   ├── yamnet.h5              # Pretrained weights (15MB)
 │   └── yamnet_class_map.csv   # 521 class labels
-├── setup.sh                    # Setup script
-├── run.sh                      # CPU execution
-├── run_with_gpu.sh            # GPU execution
+├── run.sh                      # Run basic version
+├── run_enhanced.sh             # Run enhanced version
+├── run_pro.sh                  # Run PRO version
+├── run_with_gpu.sh            # GPU-accelerated execution
+├── setup.sh                    # One-time setup
 ├── fix_microphone.sh          # Mic troubleshooting
+├── ENHANCEMENTS.md             # Feature comparison guide
 ├── Dockerfile                  # Docker image
 ├── deploy/                     # Deployment scripts
 │   └── slurm_job.sh           # SLURM job script
